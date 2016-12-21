@@ -100,21 +100,10 @@ void updatePortfolio (string theDate, Portfolio & myPortfolio) {
 	std :: map <string, vector<double> > :: iterator i = myPortfolio.currentHoldings.begin();
 	myPortfolio.investments=0;
 	
-	for (i; i != myPortfolio.currentHoldings.end(); i++){
-		cout << iter->getSymbol();
-		if (i->first==iter->getSymbol()){
-			cout << "yay";
-			iter++;
-		}
-	}
-	//cout << trackedStocks[0].getSymbol() <<endl;
-	/*for (iter; iter!=trackedStocks.end();iter++){
-		cout << iter->getSymbol() << endl;
-		
+	for (iter; iter!=trackedStocks.end();iter++){
 		for (i; i !=myPortfolio.currentHoldings.end(); i++){
-			cout << i->first << " ";
+			
 			if (i->first==iter->getSymbol()){
-				cout << i->first << "pair" << iter->getSymbol();
 			int position = iter->dateFinder(theDate);
 			i->second[1]= iter->ADJ_CLOSE[position];
 			i->second[3]= iter->ADJ_CLOSE[position]*i->second[0];
@@ -123,6 +112,7 @@ void updatePortfolio (string theDate, Portfolio & myPortfolio) {
 			}
 			else {}
 		}
+		i=myPortfolio.currentHoldings.begin();
 	}
 		double sum = 0.0;
 		map <string, vector <double> > :: iterator iterate = myPortfolio.currentHoldings.begin();
@@ -135,7 +125,7 @@ void updatePortfolio (string theDate, Portfolio & myPortfolio) {
 		iterate->second[6]=temp/sum*100;		
 		}
 	
-	myPortfolio.accountBalance=myPortfolio.accountCash+myPortfolio.investments;	*/
+	myPortfolio.accountBalance=myPortfolio.accountCash+myPortfolio.investments;	
 }
 
 //StockData constructor assigns name and symbol of stocks that we are keeping track of

@@ -36,9 +36,9 @@ int main() {
 	//sellStock and buyStock are the functions for performing each task.
 	Portfolio AmazonPlus;
 	amazonPlusInitiate(AmazonPlus, "12/14/2015", AMZN, TMF);
-	//AmazonPlus.printPortfolio();
+	AmazonPlus.printPortfolio();
 	updatePortfolio("12/16/2016",AmazonPlus);
-	//AmazonPlus.printPortfolio();
+	AmazonPlus.printPortfolio();
 	
 	//AmazonPlus.printPortfolio();
 	
