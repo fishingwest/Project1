@@ -1,39 +1,56 @@
 #include "project1.h"
 //opens input data file and check is if valid
-void openInputFile(ifstream &inFile, string inFileName){
-	//string i= inFileName;
-	inFile.open(inFileName.c_str());
-	if (!inFile.is_open()){
-		cout << "Unable to open file " << inFileName << endl;
-	}
-}
 
 int main() {
 	//creates the file object
 	ifstream Data;
 	// Filepath holder
 	string filePath;
-	//Filepath of ABX Data
-	filePath = "C:/assignments/ABX.txt";
 	
+	//These are all required in order to track a stock
+	//**********************************
+	filePath = "ABX.txt";
 	openInputFile(Data, filePath);
+	//Track a stock by using its name as an instance and pass the stock symbol and name to the constructor
 	StockData ABX("ABX","Barrick Gold Corp");
 	ABX.createDatabase(ABX,Data);
+	trackedStocks.push_back(ABX);
+	//**********************************
 	//ABX.print();
 	
-	filePath =  "C:/assignments/AMZN.txt";
+	//Beginning to Track Amazon
+	filePath =  "AMZN.txt";
 	openInputFile(Data, filePath);
 	StockData AMZN("AMZN","Amazon, Inc.");
 	AMZN.createDatabase(AMZN,Data);
+	trackedStocks.push_back(AMZN);
 	//AMZN.print();
-	//cout << ABX.movingAverage(10, "11/16/2016");
-	//ABX.activelyTrade();
 	
+	filePath =  "TMF.txt";
+	openInputFile(Data, filePath);
+	StockData TMF("TMF","Amazon, Inc.");
+	TMF.createDatabase(TMF,Data);
+	trackedStocks.push_back(TMF);
 	
-	Portfolio A;
-	A.buyStock("12/16/2016", ABX, 50);
-	A.printPortfolio();
-	A.buyStock("12/15/2016",ABX,50);
-	A.printPortfolio();
+	//You must Update your Portfolio before you print your portfolio
+	//sellStock and buyStock are the functions for performing each task.
+	Portfolio AmazonPlus;
+	amazonPlusInitiate(AmazonPlus, "12/14/2015", AMZN, TMF);
+	//AmazonPlus.printPortfolio();
+	updatePortfolio("12/16/2016",AmazonPlus);
+	//AmazonPlus.printPortfolio();
+	
+	//AmazonPlus.printPortfolio();
+	
+	//Portfolio A;
+	//ABX.activelyTrade(A,ABX);
+	//A.buyStock("12/14/2016", ABX, 50);
+	//updatePortfolio("12/16/2016",A);
+	//A.printPortfolio();
+	//
+	//A.sellStock("12/15/2016",ABX, 25);
+	//updatePortfolio("12/15/2016",A);
+	//A.printPortfolio();
+	
 	return 0;
 }

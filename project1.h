@@ -7,7 +7,13 @@
 #include <map>
 using namespace std;
 
+class addStock;
+class Portfolio;
+class StockData;
+vector <StockData> trackedStocks;
+
 class StockData {
+friend void updatePortfolio(string theDate, Portfolio & myPortfolio);
 private:
 	string name;
 	string symbol;
@@ -34,7 +40,7 @@ public:
 	string getSymbol();
 	double getPrice(string);
 	double movingAverage(int length, string date);
-	void activelyTrade();
+	void activelyTrade(Portfolio & myPortfolio, StockData & currentStock);
 	int dateFinder(string STRING);
 	
 };
@@ -47,7 +53,12 @@ class addStock {
 //class which stores the stocks quantities, values, of one persons stocks
 class Portfolio{
 friend class StockData;
+friend void updatePortfolio(string theDate, Portfolio & myPortfolio);
+friend void amazonPlusInitiate(Portfolio & myPortfolio, string _date, StockData amazon, StockData twentyYear);
 private:
+	double accountCash;
+	double investments;
+	double accountBalance;
 	int quantity;
 	double price;
 	double avgCost;
@@ -57,6 +68,7 @@ private:
 	double percentPortfolio;
 	map <string,vector <double> > currentHoldings;
 public:
+	Portfolio();
 	void printPortfolio ();
 	double calculateGainLoss(double _mktValue, double _bookValue);
 	double calculateBookValue(double _price, int _quantity);
@@ -64,7 +76,68 @@ public:
 	double calculateAvgCost (double inPrice, int inQuantity);	
 	double calculatePercentPortfolio(string symb);
 	void buyStock(string _date, StockData & _stock, int addQuantity);
+	void sellStock (string _date, StockData & _stock, int addQuantity);
 };
+
+void amazonPlusInitiate(Portfolio & myPortfolio, string _date, StockData amazon, StockData twentyYear){
+	double priceAmazon = amazon.getPrice(_date);
+	double priceTwenty = twentyYear.getPrice (_date);
+	double percentAmazon = 0.66;
+	double percentTwenty = 0.34;
+	double amountForAmazon = myPortfolio.accountCash*0.66;
+	double amountforTwenty = myPortfolio.accountCash*0.34;
+	int quantityAmazon=amountForAmazon/priceAmazon;
+	int quantityTwenty=amountforTwenty/priceTwenty;
+	
+	myPortfolio.buyStock(_date, amazon, quantityAmazon);
+	myPortfolio.buyStock(_date, twentyYear, quantityTwenty);
+}
+
+//Updates Portfolio Values to todays date
+//***********************************************WRITE THIS TO TEXT FILE
+void updatePortfolio (string theDate, Portfolio & myPortfolio) {
+	std :: vector <StockData> :: iterator iter = trackedStocks.begin();
+	std :: map <string, vector<double> > :: iterator i = myPortfolio.currentHoldings.begin();
+	myPortfolio.investments=0;
+	
+	for (i; i != myPortfolio.currentHoldings.end(); i++){
+		cout << iter->getSymbol();
+		if (i->first==iter->getSymbol()){
+			cout << "yay";
+			iter++;
+		}
+	}
+	//cout << trackedStocks[0].getSymbol() <<endl;
+	/*for (iter; iter!=trackedStocks.end();iter++){
+		cout << iter->getSymbol() << endl;
+		
+		for (i; i !=myPortfolio.currentHoldings.end(); i++){
+			cout << i->first << " ";
+			if (i->first==iter->getSymbol()){
+				cout << i->first << "pair" << iter->getSymbol();
+			int position = iter->dateFinder(theDate);
+			i->second[1]= iter->ADJ_CLOSE[position];
+			i->second[3]= iter->ADJ_CLOSE[position]*i->second[0];
+			i->second[5]= 100*(i->second[3]-i->second[4])/i->second[4];
+			myPortfolio.investments += i->second[3];
+			}
+			else {}
+		}
+	}
+		double sum = 0.0;
+		map <string, vector <double> > :: iterator iterate = myPortfolio.currentHoldings.begin();
+		for (iterate; iterate!=myPortfolio.currentHoldings.end(); iterate++){
+			sum += iterate->second[3];
+		}
+		iterate = myPortfolio.currentHoldings.begin(); 
+		for (iterate;iterate !=myPortfolio.currentHoldings.end(); iterate++){
+		double temp = iterate->second[3];
+		iterate->second[6]=temp/sum*100;		
+		}
+	
+	myPortfolio.accountBalance=myPortfolio.accountCash+myPortfolio.investments;	*/
+}
+
 //StockData constructor assigns name and symbol of stocks that we are keeping track of
 StockData :: StockData(string ticker, string stockName){
 	name=stockName;
@@ -145,8 +218,8 @@ return value;
 } 
 //The algorithm constantly is taking in dates to forecast when to make a trade
 //************************maybe reverse how this works
-void StockData :: activelyTrade(){
-	//implement input of todays date..... and ouput past trades completed.
+void StockData :: activelyTrade(Portfolio & myPortfolio, StockData & currentStock){
+	//*********implement input of todays date..... and ouput past trades completed.
 	string todays_date = "12/16/2016";
 	int position;
 	vector <string> :: iterator it;
@@ -169,8 +242,10 @@ void StockData :: activelyTrade(){
 		
 		if (movingAverage(50,todays_date) >= movingAverage(200,todays_date) && movingAverage(50,yesterdays_date) < movingAverage(200,yesterdays_date)){
 			myFile << todays_date << "\t" << getSymbol() << "\t" <<  CLOSE[position] << "\t BUY" << endl;
+			myPortfolio.buyStock(todays_date,currentStock,100);
 			position++;
 			todays_date=yesterdays_date;
+			
 		}
 		else if (movingAverage(50,todays_date) <= movingAverage(200,todays_date) && movingAverage(50,yesterdays_date) > movingAverage(200,yesterdays_date)){
 			myFile << todays_date << "\t" << getSymbol() << "\t" <<  CLOSE[position] << "\t SELL" << endl;
@@ -184,6 +259,12 @@ void StockData :: activelyTrade(){
 			
 	}
 	myFile.close();
+}
+
+Portfolio :: Portfolio () {
+	accountCash=100000;
+	accountBalance=100000;
+	investments=0;
 }
 
 double Portfolio :: calculateAvgCost (double inPrice, int inQuantity){
@@ -201,11 +282,14 @@ double Portfolio :: calculateBookValue(double _price, int _quantity){
 double Portfolio :: calculateGainLoss(double _mktValue, double _bookValue){
 	return 100*(_mktValue-_bookValue)/_bookValue;
 }
+// print to output file *******************************
 
 void Portfolio :: printPortfolio (){
 	map <string, vector <double> > :: iterator it=currentHoldings.begin();
-	cout << "Quantity" << "\t" << "Price" << "\t \t" << "Average Cost" << "\t" << "Market Value" << "\t" << "Book Value" << "\t" << "Loss/Gain" << "\t" << "% Portfolio" << endl;
+	cout << "Cash: $" << accountCash << "\t Investments: $" << investments << "\t Total Balance: $" << accountBalance << endl << endl;
+	cout << "Symbol" << "\t\t"  << "Quantity" << "\t" << "Price" << "\t \t" << "Average Cost" << "\t" << "Market Value" << "\t" << "Book Value" << "\t" << "% Loss/Gain" << "\t" << "% Portfolio" << endl;
 	for (it; it!=currentHoldings.end();it++){
+		cout << it->first << "\t\t";
 		for (int i=0; i<7; i++){
 			cout << fixed << setprecision(2) << it->second[i]<< "\t\t";
 			}
@@ -224,19 +308,57 @@ double Portfolio :: calculatePercentPortfolio(string symb){
 	return percentOwned;
 }	
 //Takes in date stock is purchased the stock data and the quantity purchased in that order to add these to the portfolio	
+void Portfolio :: sellStock (string _date, StockData & _stock, int addQuantity){
+ quantity=addQuantity;
+ price=_stock.getPrice(_date);
+ accountCash=accountCash+price*quantity;
+ investments=investments-price*quantity;
+ accountBalance=accountCash+investments;
+ string stk_ticker=_stock.getSymbol();
+
+ if (currentHoldings.find(stk_ticker) != currentHoldings.end()){
+	currentHoldings.find(stk_ticker)->second[0]=currentHoldings.find(stk_ticker)->second[0]-quantity;
+	if (currentHoldings.find(stk_ticker)->second[0]!=0){
+	currentHoldings.find(stk_ticker)->second[1]=price;
+	currentHoldings.find(stk_ticker)->second[3]=currentHoldings.find(stk_ticker)->second[0]*price;
+	currentHoldings.find(stk_ticker)->second[4]=currentHoldings.find(stk_ticker)->second[2]*currentHoldings.find(stk_ticker)->second[0];
+	currentHoldings.find(stk_ticker)->second[5]=calculateGainLoss(currentHoldings.find(stk_ticker)->second[3],currentHoldings.find(stk_ticker)->second[4]);
+	currentHoldings.find(stk_ticker)->second[6]=calculatePercentPortfolio(_stock.getSymbol());
+	}
+	else {
+	currentHoldings.erase(stk_ticker);
+	}
+	
+ }
+ else {
+	 cout << stk_ticker << " is not part of your portfolio and cannot be sold" << endl;
+ }
+}
+
 void Portfolio :: buyStock(string _date, StockData & _stock, int addQuantity) {
 	quantity=addQuantity;
 	price=_stock.getPrice(_date);
+	accountCash=accountCash-price*quantity;
+	investments=investments+price*quantity;
+	accountBalance=accountCash+investments;
 	string stk_ticker= _stock.getSymbol();
 	//std :: map <string>
 	//if stock already exists in portfolio need to recalculate avg cost/quantity/bookvalue
 	if (currentHoldings.find(stk_ticker)!=currentHoldings.end()){
+		
 		currentHoldings.find(stk_ticker)->second[0]=currentHoldings.find(stk_ticker)->second[0]+quantity;
+		if (currentHoldings.find(stk_ticker)->second[0] != 0){
 		currentHoldings.find(stk_ticker)->second[1]=price;
 		currentHoldings.find(stk_ticker)->second[3]=calculateMktValue(price,currentHoldings.find(stk_ticker)->second[0]);
 		currentHoldings.find(stk_ticker)->second[4]=currentHoldings.find(stk_ticker)->second[4]+calculateBookValue(price,quantity);
 		currentHoldings.find(stk_ticker)->second[5]=calculateGainLoss(currentHoldings.find(stk_ticker)->second[3],currentHoldings.find(stk_ticker)->second[4]);
 		currentHoldings.find(stk_ticker)->second[2]=currentHoldings.find(stk_ticker)->second[4]/currentHoldings.find(stk_ticker)->second[0];
+		currentHoldings.find(stk_ticker)->second[6]=calculatePercentPortfolio(_stock.getSymbol());
+		}
+		//erases the stock from the portfolio if a quantity of zero is owned
+		else {
+			currentHoldings.erase(stk_ticker);
+		}
 	}
 	else {
 		addStock stk_ticker;
@@ -253,4 +375,11 @@ void Portfolio :: buyStock(string _date, StockData & _stock, int addQuantity) {
 		currentHoldings[_stock.getSymbol()].push_back(calculatePercentPortfolio(_stock.getSymbol()));
 	}	
 	}
-	
+//opens input data files for creating database
+void openInputFile(ifstream &inFile, string inFileName){
+	//string i= inFileName;
+	inFile.open(inFileName.c_str());
+	if (!inFile.is_open()){
+		cout << "Unable to open file " << inFileName << endl;
+	}
+}
