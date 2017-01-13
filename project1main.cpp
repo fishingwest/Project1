@@ -1,22 +1,28 @@
 #include "project1.h"
-//opens input data file and check is if valid
 
 int main() {
-	//creates the file object
+	string todaysDate;
+	string beginStrategy = "12/14/2015";
+	
+	//Latest date it can take is 12/16/2016 as that is when the data was collected
+	cout << "Please Input Today's Date MM/D/YYYY or 12/5/2016: ";
+	cin >> todaysDate;
+	
 	ifstream Data;
-	// Filepath holder
 	string filePath;
 	
-	//These are all required in order to track a stock
-	//**********************************
+	//The steps beetween the asterisk are required to begin tracking a stock.
+	//Any stock can be tracked
+	//Input data to be used is the file path (tab delimited) text file
+	
+	//*********************************************************************//
 	filePath = "ABX.txt";
 	openInputFile(Data, filePath);
 	//Track a stock by using its name as an instance and pass the stock symbol and name to the constructor
 	StockData ABX("ABX","Barrick Gold Corp");
 	ABX.createDatabase(ABX,Data);
 	trackedStocks.push_back(ABX);
-	//**********************************
-	//ABX.print();
+	//*********************************************************************//
 	
 	//Beginning to Track Amazon
 	filePath =  "AMZN.txt";
@@ -26,31 +32,22 @@ int main() {
 	trackedStocks.push_back(AMZN);
 	//AMZN.print();
 	
+	//Beginning to Track Twenty Year Treasury Yield
 	filePath =  "TMF.txt";
 	openInputFile(Data, filePath);
-	StockData TMF("TMF","Amazon, Inc.");
+	StockData TMF("TMF","20 Year Treasury Yield ETF");
 	TMF.createDatabase(TMF,Data);
 	trackedStocks.push_back(TMF);
 	
-	//You must Update your Portfolio before you print your portfolio
-	//sellStock and buyStock are the functions for performing each task.
+	//AMAZON Plus Strategy Implementation
 	Portfolio AmazonPlus;
-	amazonPlusInitiate(AmazonPlus, "12/14/2015", AMZN, TMF);
-	AmazonPlus.printPortfolio();
-	updatePortfolio("12/16/2016",AmazonPlus);
-	AmazonPlus.printPortfolio();
+	amazonPlusInitiate(AmazonPlus, beginStrategy, AMZN, TMF);
+	AmazonPlusStrategy (AmazonPlus, beginStrategy, todaysDate, AMZN, TMF);
+	AmazonPlus.printPortfolio(todaysDate, AmazonPlus);
 	
-	//AmazonPlus.printPortfolio();
-	
-	//Portfolio A;
-	//ABX.activelyTrade(A,ABX);
-	//A.buyStock("12/14/2016", ABX, 50);
-	//updatePortfolio("12/16/2016",A);
-	//A.printPortfolio();
-	//
-	//A.sellStock("12/15/2016",ABX, 25);
-	//updatePortfolio("12/15/2016",A);
-	//A.printPortfolio();
+	//MovingAverage Trade Strategy Implementation
+	Portfolio movingAverageStrategy;
+	ABX.activelyTrade(movingAverageStrategy,ABX);
 	
 	return 0;
 }

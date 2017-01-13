@@ -1,0 +1,6 @@
+12/16/2016
+Cash: $749.91	 Investments: $110126	 Total Balance: $110876
+
+Symbol		Quantity	Price		Average Cost	Market Value		Book Value	% Loss/Gain	% Portfolio
+AMZN		101.00		757.77		634.15		76534.77		64048.84		19.49		69.50		
+TMF		1969.00		17.06		19.76		33591.14		38900.82		-13.65		30.50		
